@@ -1,0 +1,83 @@
+Sub CommandButton1_Click()
+
+    ' Word initialization
+    Dim ws As Worksheet
+    Dim objword As Object
+    Dim objDoc As Object
+     
+    Set ws = ThisWorkbook.ActiveSheet
+    Set objword = CreateObject("Word.Application")
+
+    ' Excel variable initialization
+    Dim doc_type As String: doc_type = ws.Range("B1").Value
+    Dim doc_drwgNo As String: doc_drwgNo = ws.Range("B2").Value
+    Dim doc_partNo As String: doc_partNo = ws.Range("B3").Value
+    Dim doc_title As String: doc_title = ws.Range("B4").Value
+    Dim doc_revisionNo As String: doc_revisionNo = ws.Range("B5").Value
+    Dim doc_requestNo As String: doc_requestNo = ws.Range("B6").Value
+    Dim doc_changeNo As String: doc_changeNo = ws.Range("B7").Value
+    Dim doc_date As String: doc_date = ws.Range("B8").Value
+    Dim doc_ID As String: doc_ID = ws.Range("B9").Value
+    Dim doc_location As String: doc_location = ws.Range("B10").Value
+      
+    ' File initialization
+    Dim file_name As String
+    Dim template_location As String
+     
+    file_name = doc_type & Space(1) & doc_drwgNo & Space(1) & doc_partNo & Space(1) & doc_revisionNo & Space(1) & doc_date & Space(1) & "A"
+    template_location = "S:\CDX\Checklist Generator Program\checklist_template.docx"
+    
+    Set objDoc = objword.Documents.Add(template_location)
+    
+    ' Version check
+    Dim verCurrent_date As Date
+    Dim verComparison As String
+    Dim verRevision_date As String
+    Dim verCheck As Boolean
+    
+    verCurrent_date = FileDateTime("S:\DCE Procedures\DCE-006 Drawing Release Process.docx")
+    verComparison = Format(verCurrent_date, "mm/dd/yy")
+    verRevision_date = "01/29/20"
+
+    Debug.Print (verComparison)
+    Debug.Print (verRevision_date)
+
+    If verComparison <> verRevision_date Then
+        MsgBox "Checklist is not up to date.", vbExclamation, "Cannot Generate"
+        Application.ScreenUpdating = False
+        verCheck = False
+    ElseIf verComparison = verRevision_date Then
+        MsgBox "Checklist is up to date.", vbExclamation, "Generating Checklist"
+        Application.ScreenUpdating = False
+        verCheck = True
+    End If
+    
+    If verCheck = True Then
+        
+        objword.Visible = True
+        
+        ' Generator
+        With objDoc
+          
+            .BookMarks("title_type1").Range.Text = doc_type
+            .BookMarks("title_drwgno1").Range.Text = doc_drwgNo
+            .BookMarks("title_partno1").Range.Text = doc_partNo
+            .BookMarks("title_drwgtitle1").Range.Text = doc_title
+            .BookMarks("title_revision1").Range.Text = doc_revisionNo
+            .BookMarks("title_requestno1").Range.Text = doc_requestNo
+            .BookMarks("title_ecnno1").Range.Text = doc_changeNo
+          
+            If ws.Range("drwgtype1").Value = "EDP" Then
+                .BookMarks("a1").Range.Text = "[x]"
+            End If
+              
+            ' Input file SaveAs directory
+            ' .SaveAs fileName:="C:\Users\" & doc_ID & "\" & doc_location & "\" & file_name & ".docx"
+          
+        End With
+        
+    End If
+    
+    Set objDoc = Nothing
+
+End Sub
